@@ -5,7 +5,7 @@ from typing import List,Dict
 class Retriever:
     """
     High-level retrieval logic on top of VectorStore
-    Handles top-k section, duplicate removal, and metadat-aware filtering
+    Handles top-k section, duplicate removal, and optional per-file quotas.
     """
     
     def __init__(self, store: VectorStore):
@@ -23,12 +23,16 @@ class Retriever:
             query_embedding: Embedding vector of the query
             top_k: Number of chunks to return
             filter_source: Optional, only retrieve chunks from a specific source file name
+            per_file_quota: optional dict {soukrce_filename: number_of_chunks} to guarantee per-file counts
+         
+         Returns:
+            List[Document]: final retrived chunks
          """
          # Step 1: get similarity-ranked results
          # Fetch extra candidates to allow filtering/dedup/per-file quota
-         buffer_multiplier = 3
+         buffer_multiplier = 3 # Ensures candidates survive filtering, deduplication, and per-file quotas
          fetch_k = top_k * buffer_multiplier if not per_file_quota else max(per_file_quota.values()) * buffer_multiplier
-         candidates = self.store.search(query_embedding, top_k = top_k * 3)
+         candidates = self.store.search(query_embedding, top_k = fetch_k)
          
 
 
@@ -36,16 +40,52 @@ class Retriever:
          # Step  2: optional source filtering
          if filter_source:
              candidates = [(score, doc) for score, doc in candidates if doc.metadata.get("source") == filter_source]
+             """
+             doc.metadata = {
+                 "source": "fileA.txt",
+                 "page": 3,
+                 "chunk_id": 12
+             }
+             instead of doc.metadata["source"] we use doc.metadata.get("source")
+             bec: metadata["source"] → throws KeyError if "source" doesn't exist, metadata.get("source") → returns None if it doesn't exist
+
+             """
         
         # Step 3: remove duplicates caused by overlapping chunks 
          seen_texts = set()
          final_docs : List[Document] = []
 
-         for score, doc in candidates:
-             if doc.text not in seen_texts:
+        # step 4: per-file quotas handling
+         if per_file_quota:
+             counters = {file: 0 for file in per_file_quota}
+
+             for score, doc in candidates:
+                 text = doc.text
+                 source = doc.metadata.get("source")
+
+                 # Skip duplicates
+                 if text in seen_texts:
+                     continue
+                 # Skip if source not in quotas
+                 if source not in counters:
+                     continue
+                 # Accept the doc
                  final_docs.append(doc)
-                 seen_texts.add(doc.text)
-             if len(final_docs) >= top_k:
-                 break
+                 seen_texts.add(text)
+                 counters[source] +=1
+                 # Stop early if all quotas satisfied
+                 if all(counters[src] >= per_file_quota[src] for src in counters):
+                     break
+             
+         else:
+             # No per-file quotas, simple top_k selection with deduplication
+             for score, doc in candidates:
+                 text = doc.text
+                 if text in seen_texts:
+                     continue
+                 final_docs.append(doc)
+                 seen_texts.append(text)
+                 if len(final_docs) >= top_k:
+                    break
          return final_docs
             
