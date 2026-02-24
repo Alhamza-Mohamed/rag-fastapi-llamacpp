@@ -38,7 +38,7 @@ class Retriever:
 
 
          # Step  2: optional source filtering
-         if filter_source:
+         if filter_source is not None:
              candidates = [(score, doc) for score, doc in candidates if doc.metadata.get("source") == filter_source]
              """
              doc.metadata = {
@@ -57,7 +57,8 @@ class Retriever:
 
         # step 4: per-file quotas handling
          if per_file_quota:
-             counters = {file: 0 for file in per_file_quota}
+             counters = {file: 0 for file in per_file_quota} 
+             # dictionary comprehension. It uses the keys (file) from per_file_quota as a template and give it intial value of 0 {file (str) , 0(int)}
 
              for score, doc in candidates:
                  text = doc.text
@@ -69,13 +70,26 @@ class Retriever:
                  # Skip if source not in quotas
                  if source not in counters:
                      continue
-                 # Accept the doc
-                 final_docs.append(doc)
-                 seen_texts.add(text)
-                 counters[source] +=1
+                 
+                 # Accept the doc only if we haven't hit the quota for this specific file
+                 if counters[source] < per_file_quota[source]:
+                    final_docs.append(doc)
+                    seen_texts.add(text)
+                    counters[source] +=1
+                
+                 else:
+                 # We already have enough of this file, so skip this chunk
+                    continue
+
                  # Stop early if all quotas satisfied
                  if all(counters[src] >= per_file_quota[src] for src in counters):
                      break
+                     """
+                     src represents the key (the filename string)
+                     counters[src] the current number of chunks that have actually collected for that file
+                     per_file_quota[src] the target number wanted for that file
+                     all(...) function returns True only if every single item in the loop meets the condition
+                     """
              
          else:
              # No per-file quotas, simple top_k selection with deduplication
@@ -83,8 +97,8 @@ class Retriever:
                  text = doc.text
                  if text in seen_texts:
                      continue
-                 final_docs.append(doc)
-                 seen_texts.append(text)
+                 final_docs.append(doc) # final_docs is list, list -> append
+                 seen_texts.add(text) # seen_text is set, set-> add 
                  if len(final_docs) >= top_k:
                     break
          return final_docs
