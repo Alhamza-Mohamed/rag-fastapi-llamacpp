@@ -15,7 +15,7 @@ class Retriever:
         self.store = store
 
     def retrieve(self, query_embedding: List[float], top_k: int = 5, filter_source: str | None = None, per_file_quota: Dict[str, int] | None = None) -> List[Document]: 
-        # filter_source: str | None = None fileter source can be str or none and the defult = none 
+        # filter_source: str | None = None filter source can be str or none and the default = none 
          """
          Retrieve top-k relevant Document chunks, with optional filtering and duplicate removal.
         
@@ -23,13 +23,13 @@ class Retriever:
             query_embedding: Embedding vector of the query
             top_k: Number of chunks to return
             filter_source: Optional, only retrieve chunks from a specific source file name
-            per_file_quota: optional dict {soukrce_filename: number_of_chunks} to guarantee per-file counts
+            per_file_quota: optional dict {source_filename: number_of_chunks} to guarantee per-file counts
          
          Returns:
-            List[Document]: final retrived chunks
+            List[Document]: final retrieved chunks
          """
          # Step 1: get similarity-ranked results
-         # Fetch extra candidates to allow filtering/dedup/per-file quota
+         # Fetch extra candidates to allow filtering/deduplicate/per-file quota
          buffer_multiplier = 3 # Ensures candidates survive filtering, deduplication, and per-file quotas
          fetch_k = top_k * buffer_multiplier if not per_file_quota else max(per_file_quota.values()) * buffer_multiplier
          candidates = self.store.search(query_embedding, top_k = fetch_k)
@@ -58,7 +58,7 @@ class Retriever:
         # step 4: per-file quotas handling
          if per_file_quota:
              counters = {file: 0 for file in per_file_quota} 
-             # dictionary comprehension. It uses the keys (file) from per_file_quota as a template and give it intial value of 0 {file (str) , 0(int)}
+             # dictionary comprehension. It uses the keys (file) from per_file_quota as a template and give it initial value of 0 {file (str) , 0(int)}
 
              for score, doc in candidates:
                  text = doc.text

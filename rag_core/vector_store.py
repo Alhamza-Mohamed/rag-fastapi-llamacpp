@@ -18,7 +18,7 @@ class VectorStore:
         
         Args: 
             embedding: List of floats representing the chunk embedding
-            doc: Documnet object containing text + metadata
+            doc: Document object containing text + metadata
         """
         # convert to numpy array for vector math
         vec = np.array(embedding, dtype=np.float32)
@@ -32,18 +32,18 @@ class VectorStore:
         # Append tuple to the store
         self.store.append((vec,doc))
 
-    def search( self, query_embdding: List[float], top_k: int = 5)-> List[Tuple[float,Document]]:
+    def search( self, query_embedding: List[float], top_k: int = 5)-> List[Tuple[float,Document]]:
         """
-        Perfomr cosine similarity search
+        perform cosine similarity search
         Returns:
             List of (similarity_score, Document) stored descending
-        """
+        """ 
 
         if not self.store:
             return []
         #if the list is empty. If you haven't added any documents yet, self.store is []. In Python, an empty list evaluates to False. So this line prevents the code from trying to search through nothing 
         
-        query_vec = np.array(query_embdding, dtype=np.float32)
+        query_vec = np.array(query_embedding, dtype=np.float32)
         norm = np.linalg.norm(query_vec)
         if norm !=0:
             query_vec = query_vec/norm
