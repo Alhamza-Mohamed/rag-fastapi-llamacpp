@@ -41,7 +41,7 @@ class SimpleEmbedder:
 
         """
         N = len(texts) # N is the number of strings (documents/sentences) in the list, not the total number of words.
-        embeddings = np.zeros ((N, self.dim), dtype= np.float32 ) # 2D NumPy array of shape (Number_of_Documents, dim or 384).
+        embeddings = np.zeros ((N, self.dim), dtype= np.float32 ) # 2D NumPy array of shape (Number_of_Documents * dim or 384).
 
         for i, text in enumerate(texts): # iterating through every text in the texts (documents) 
             # i is the number of how many times word appear 
