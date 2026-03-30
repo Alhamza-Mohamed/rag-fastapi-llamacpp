@@ -4,10 +4,12 @@ from rag_core.document import Document
 class PromptBuilder:
     def __init__(self, default_instruction: str | None = None):
         self.default_instruction = default_instruction or (
-            "You are a helpful assistant. "
-            "Answer ONLY using the provided context. "
-            "If the answer is not in the context, say you don't know. "
-        )
+    "You are a helpful AI assistant.\n"
+    "Use ONLY the provided context to answer the question.\n"
+    "If the answer is not explicitly in the context, say: 'I don't know.'\n"
+    "Do NOT use prior knowledge. \n"
+    "Cite the chunk numbers when relevant. "
+    )
     
     def build (self, query: str, documents: List[Document], instruction: str | None = None
     ) -> List  [Dict[str,  str]]:  
@@ -35,8 +37,10 @@ class PromptBuilder:
             end = doc.metadata.get("end", "N/A")
 
             chunk_text = (
-                f"[Chunk{i} | Source: {source} |start: {start} | End: {end}] \n"
-                f"{doc.text}"
+                f"Chunk {i}:\n"
+                f"Source: {source}\n"
+                f"Position: {start} - {end}\n"
+                f"Content:\n{doc.text}"
             )
 
             chunks.append(chunk_text)
@@ -45,10 +49,14 @@ class PromptBuilder:
 
     def _format_user_message(self, query: str, context: str) -> Dict[str,str]:
         content =(
-            "Context:\n"
+            "You are given the following context:\n\n"
+            "===== CONTEXT START =====\n"
             f"{context}\n\n"
-            "Question:\n"
-            f"{query}"
+            "===== CONTEXT END =====\n\n"
+            "Answer the question using ONLY the context above."
+            "If the answer is not in the context, say: 'I dont know'\n\n"
+            f"Question: {query}\n\n"
+            
         )
 
         return{

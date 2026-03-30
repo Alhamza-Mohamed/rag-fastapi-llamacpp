@@ -23,11 +23,11 @@ class SimpleEmbedder:
         return int(hashlib.md5(token.encode()).hexdigest(), 16)
         """
         Takes token and runs it through the MD5 hashing algorithm
-        MD5 algorithm cant read regular python text strings(Unicode) so ti requires a raw stream of bytes
+        MD5 algorithm cant read regular python text strings(Unicode) so it requires a raw stream of bytes
         .encode() translate the text token into byte object to be read by MD5 algorithm.
         The result MD5 always turns the same token into the same long hexadecimal string.
         the hex string made of hexadecimal characters (numbers 0-9 and letters a-f). ex "1f3870be274f6c49b3e31a0c6728957f".
-        By converting the hex string into an in  using int(..., 16) - so we can apply math on it - the output is a massive unique int that represent the specific piece of text
+        By converting the hex string into an integer using int(..., 16) - so we can apply math on it - the output is a massive unique int that represent the specific piece of text
         """
         
     def embed_documents(self, texts: List[str]) -> np.ndarray:
