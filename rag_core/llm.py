@@ -8,7 +8,27 @@ class LlamaLLM:
         self.top_p = top_p
         self.n_predict = n_predict
 
-    #def generate(self, message: List[Dict[str,str]]) -> str:
+    def generate(self, messages: List[Dict[str,str]]) -> str:
+        """
+        message: List[{"role: "...", "content": "..."}]
+        """
 
-
+        # Convert dict into ChatMessage (the existing schema)
+        chat_messages = [
+            ChatMessage(role = m ["role"], content = m["content"])
+            for m in messages
+        ]
         
+        # Build prompt string for llama.cpp
+        prompt = build_chat_prompt (chat_messages)
+
+        # Create request object (reuse the schema)
+        req = chatRequest(
+            messages=chat_messages,
+            n_predict = self.n_predict,
+            temperature = self.temperature,
+            top_p = self.top_p,
+        )
+
+        # Call the existing llama.cpp service
+        return generate_message  (req,prompt )
