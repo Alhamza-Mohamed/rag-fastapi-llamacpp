@@ -1,7 +1,15 @@
 # main.py
 from fastapi import FastAPI
-from routes.Chat import router
+from rag_setup import build_pipeline
+from routes.rag import router as rag_router
+from routes.Chat import router as chat_router
 
-app = FastAPI(title="LLM API")
+app = FastAPI(title="LLM RAG API")
 
-app.include_router(router)
+# Build once at startup
+pipeline = build_pipeline
+
+# Attach to app state 
+app.state.pipeline = pipeline
+
+app.include_router(rag_router)
