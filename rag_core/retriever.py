@@ -30,6 +30,7 @@ class Retriever:
          """
          # Step 1: get similarity-ranked results
          # Fetch extra candidates to allow filtering/deduplicate/per-file quota
+         top_k = top_k or 5 #insure top_k is not none
          buffer_multiplier = 3 # Ensures candidates survive filtering, deduplication, and per-file quotas
          fetch_k = top_k * buffer_multiplier if not per_file_quota else max(per_file_quota.values()) * buffer_multiplier
          candidates = self.store.search(query_embedding, top_k = fetch_k)
