@@ -21,7 +21,7 @@ If they send the wrong type or forget the field, FastAPI rejects the request aut
 
 @router.post("/rag") # This decorator registers the function below it as a POST handler at the path /rag. When someone sends a POST request to /rag, this function runs.
 def rag_endpoint(req: RAGRequest, request: Request):
-    pipeline = request.app.state.pipeline()
+    pipeline = request.app.state.pipeline
     result = pipeline.run(req.query)
     return result
 

@@ -10,6 +10,6 @@ app = FastAPI(title="LLM RAG API")
 pipeline = build_pipeline
 
 # Attach to app state 
-app.state.pipeline = pipeline
+app.state.pipeline = pipeline()
 
 app.include_router(rag_router)

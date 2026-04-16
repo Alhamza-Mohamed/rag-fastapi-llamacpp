@@ -6,7 +6,7 @@ from typing import List
 def chunk_document(
     documents: List[Document],
     chunk_size: int = 500,
-    overlap_sentences: int = 50
+    overlap_sentences: int = 2
 ) -> List[Document]:
     chunks: List[Document] = []
 
