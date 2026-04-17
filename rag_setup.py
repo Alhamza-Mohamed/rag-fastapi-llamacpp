@@ -59,6 +59,6 @@ def build_pipeline() -> Pipeline:
         llm = llm 
     )
 
-    print("BUILDING PIPELINE...")
+    
 
     return pipeline

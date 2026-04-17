@@ -22,6 +22,8 @@ class Pipeline:
 
         # 2- Retrieve relevant documents
         documents: List[Document] = self.retriever.retrieve(query_vector,top_k = top_k)
+        if not documents: # empty document
+            return "I dont know"
 
         # 3- Build prompt
         messages: List[Dict[str, str]] = self.prompt_builder.build(query, documents)

@@ -8,11 +8,12 @@ class Retriever:
     Handles top-k section, duplicate removal, and optional per-file quotas.
     """
     
-    def __init__(self, store: VectorStore):
+    def __init__(self, store: VectorStore, threshold: float = 0.16):
         """
         Args: store an instance of VectorStore
         """
         self.store = store
+        self.threshold = threshold 
 
     def retrieve(self, query_embedding: List[float], top_k: int = 5, filter_source: str | None = None, per_file_quota: Dict[str, int] | None = None) -> List[Document]: 
         # filter_source: str | None = None filter source can be str or none and the default = none 
@@ -35,8 +36,15 @@ class Retriever:
          fetch_k = top_k * buffer_multiplier if not per_file_quota else max(per_file_quota.values()) * buffer_multiplier
          candidates = self.store.search(query_embedding, top_k = fetch_k)
          
+         # relevance check
+         if not candidates:
+             return []
+         
+         top_score = candidates[0][0] # highest similarity 
+         print(f"Top score: {candidates[0][0]}")
 
-
+         if top_score < self.threshold: # if the first element (best match) is bad then everything else is worse so stop
+             return[]
 
          # Step  2: optional source filtering
          if filter_source is not None:
