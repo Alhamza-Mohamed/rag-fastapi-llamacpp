@@ -9,21 +9,22 @@ from rag_core.llm import LlamaLLM
 
 
 def build_pipeline() -> Pipeline:
-    print(">>> BUILD PIPELINE CALLED <<<", flush=True)
+    #print(">>> BUILD PIPELINE CALLED <<<", flush=True)
 
     # 1. Load documents
     documents = load_text_files("data")
 
-    print(">>> documents are loaded <<<", flush=True)
+    
     # 2.Chunk
     chunks = chunk_document(documents,chunk_size=500, overlap_sentences=2) # The problem is here 
     
-    print(">>> chunks are loaded <<<", flush=True)
+    
     # 3. Embed
     embedder = SimpleEmbedder()
     texts = [doc.text for doc in chunks] # separate the text from the whole documents
     vectors = embedder.embed_documents(texts) # embedder deals with text only not documents
 
+    """
     print("=== VECTOR DEBUG ===")
     for i, v in enumerate(vectors):
         try:
@@ -34,6 +35,7 @@ def build_pipeline() -> Pipeline:
     for c  in chunks:
         if not c.text.strip():
             print ("EMPTY CHUNK FOUND")
+    """
 
     # 4. Store
     vector_store = VectorStore()
