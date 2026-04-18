@@ -1,6 +1,6 @@
 from rag_core.loader import  load_text_files
 from rag_core.chunker import chunk_document
-from rag_core.embedder import SimpleEmbedder
+from rag_core.simple_embedder import SimpleEmbedder
 from rag_core.vector_store import VectorStore
 from rag_core.retriever import Retriever
 from rag_core.prompt import PromptBuilder
