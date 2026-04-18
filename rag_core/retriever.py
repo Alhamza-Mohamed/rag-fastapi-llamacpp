@@ -8,7 +8,7 @@ class Retriever:
     Handles top-k section, duplicate removal, and optional per-file quotas.
     """
     
-    def __init__(self, store: VectorStore, threshold: float = 0.16):
+    def __init__(self, store: VectorStore, threshold: float = 0.4):
         """
         Args: store an instance of VectorStore
         """
