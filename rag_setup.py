@@ -9,14 +9,13 @@ from rag_core.llm import LlamaLLM
 
 
 def build_pipeline() -> Pipeline:
-    #print(">>> BUILD PIPELINE CALLED <<<", flush=True)
 
     # 1. Load documents
     documents = load_text_files("data")
 
     
     # 2.Chunk
-    chunks = chunk_document(documents,chunk_size=500, overlap_sentences=2) # The problem is here 
+    chunks = chunk_document(documents,chunk_size=500, overlap_sentences=2) 
     
     
     # 3. Embed
@@ -24,27 +23,13 @@ def build_pipeline() -> Pipeline:
     texts = [doc.text for doc in chunks] # separate the text from the whole documents
     vectors = embedder.embed_documents(texts) # embedder deals with text only not documents
 
-    """
-    print("=== VECTOR DEBUG ===")
-    for i, v in enumerate(vectors):
-        try:
-            print(f"{i}: shape= {v.shape}, len={len(v)}")
-        except Exception as e:
-            print(f"{i}: INVALID VECTOR -> {v}, error= {e}")
-
-    for c  in chunks:
-        if not c.text.strip():
-            print ("EMPTY CHUNK FOUND")
-    """
-
     # 4. Store
     vector_store = VectorStore()
     for vec, doc in zip(vectors, chunks):
         vector_store.add(vec,doc) # add vectors one by one 
 
     # 5. Retriever
-    retriever = Retriever(vector_store) # it was Retriever(vector_store, top_k = 5) and it caused an error
-
+    retriever = Retriever(vector_store) 
     # 6. Prompt builder
     prompt_builder = PromptBuilder()
 
